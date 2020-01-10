@@ -135,7 +135,7 @@ where p_art_id in (5,6)
 go
 --*/
 --Ticket #19
---/*
+/*
 update m
 set NName='Kob-Hohl'
 from db_ddladmin.Anwaltbutler_Mitarbeiter as m
@@ -178,4 +178,125 @@ update db_ddladmin.Anwaltbutler_Mitarbeiter
 set AbteilungsNr='GRS'
 where NName='Hohl'
 go
+--*/
+--Ticket #24
+/*
+--/*
+--1.)
+create table db_ddladmin.InstaHub_Users(
+	UserID int not null primary key identity(0,1),
+	Username nvarchar(max) not null,
+	EMail nvarchar(max) not null,
+	Password nvarchar(max) not null,
+	Fullname nvarchar(max) not null,
+	Gender char(1) not null,
+	Birthday date not null,
+	City nvarchar(max) not null,
+	Country nvarchar(max) not null,
+	Centimeters int not null,
+	Avatar nvarchar(max) not null,
+	Role nvarchar(max) not null,
+	IsActive bit not null,
+	CreatedAt datetime not null,
+	UpdatedAt datetime not null
+)
+create table db_ddladmin.InstaHub_Photos(
+	PhotoID int not null primary key identity(0,1),
+	UserID int not null,
+	Description nvarchar(max) not null,
+	URL nvarchar(max) not null,
+	License nvarchar(max) null,
+	CreatedAt datetime not null,
+	UpdatedAt datetime not null,
+	
+	constraint FK_UserID_photos foreign key (UserID)
+	references db_ddladmin.InstaHub_Users (UserID)
+	on update cascade
+	on delete cascade
+)
+create table db_ddladmin.InstaHub_Likes(
+	PhotoID int not null,
+	UserID int not null,
+	CreatedAt datetime not null,
+	UpdatedAt datetime not null,
+
+	constraint FK_PhotoID foreign key (PhotoID)
+	references db_ddladmin.InstaHub_Photos (PhotoID)
+	on update cascade
+	on delete cascade,
+	constraint FK_UserID_likes foreign key (UserID)
+	references db_ddladmin.InstaHub_Users (UserID)
+	on update no action
+	on delete no action
+)
+--*/
+--/*
+--2.)
+alter table db_ddladmin.InstaHub_Users
+--2.a)
+add constraint CK_Centimeters check (Centimeters > 100),
+--2.b)
+	constraint CK_Gender check (lower(Gender) in ('m','f','d'))
+--*/
+--/*
+--4.)
+insert into db_ddladmin.InstaHub_Likes
+--4.a)
+values (763,6,current_timestamp,current_timestamp)
+	  ,(282,6,current_timestamp,current_timestamp)
+--4.b)
+	  ,(70,5,current_timestamp,current_timestamp)
+	  ,(148,5,current_timestamp,current_timestamp)
+	  ,(282,5,current_timestamp,current_timestamp)
+--4.c)
+	  ,(400,4,current_timestamp,current_timestamp)
+--*/
+--/*
+--5.)
+update db_ddladmin.InstaHub_Users
+set IsActive=0
+where Fullname='Max Maier'
+--*/
+--/*
+--6.)
+update db_ddladmin.InstaHub_Users
+set Country='Germany'
+where Country in ('German','Deutschland')
+--*/
+--/*
+--7.)
+update db_ddladmin.InstaHub_Users
+set Fullname=replace(fullname,'Krüger','Rand')
+where Fullname='Luise Krüger'
+--*/
+--/*
+--8.)
+delete from db_ddladmin.InstaHub_Photos
+where PhotoID=148
+--*/
+--/*
+--9.)
+update db_ddladmin.InstaHub_Photos
+set UpdatedAt=current_timestamp
+--*/
+--/*
+--10.)
+alter table db_ddladmin.InstaHub_Users
+drop constraint CK_Height
+go
+exec sp_rename 'users.Centimeters', 'Height', 'column'
+go
+alter table db_ddladmin.InstaHub_Users
+alter column Height decimal(5,2)
+go
+update db_ddladmin.InstaHub_Users
+set Height=Height/100
+go
+alter table db_ddladmin.InstaHub_Users
+alter column Height decimal(3,2)
+go
+alter table db_ddladmin.InstaHub_Users
+add constraint CK_Height check (Height > 1.00)
+go
+--*/
 --*/
