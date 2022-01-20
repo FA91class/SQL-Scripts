@@ -1,2 +1,2 @@
 # SQL-Scripts
-Für unsere ganzen SQL-Scripts
+Ein Ort zum sammeln unserer SQL-Scripte.
